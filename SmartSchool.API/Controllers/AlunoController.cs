@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.API.Data;
 using SmartSchool.API.Models;
 
 namespace SmartSchool.API.Controllers {
@@ -8,37 +10,20 @@ namespace SmartSchool.API.Controllers {
     [Route ("api/[controller]")]
 
     public class AlunoController : ControllerBase {
-        List<Aluno> listAlunos = new List<Aluno> () {
-            new Aluno () {
-            Id = 1,
-            Nome = "Zeca",
-            Sobrenome = "Oliveira",
-            Telefone = "47-99272-8397"
-            },
-            new Aluno () {
-            Id = 2,
-            Nome = "Alice",
-            Sobrenome = "Oliveira",
-            Telefone = "47-99272-8397"
-            },
-            new Aluno () {
-            Id = 3,
-            Nome = "Adriana",
-            Sobrenome = "Oliveira",
-            Telefone = "47-99272-8397"
-            }
-        };
 
-        public AlunoController () { }
+        private readonly SmartContext _context;
+        public AlunoController (SmartContext context) {
+            _context = context;
+        }
 
         [HttpGet]
         public IActionResult Get () {
-            return Ok (listAlunos);
+            return Ok (_context.Alunos);
         }
 
         [HttpGet ("byId/{id}")]
         public IActionResult GetById (int id) {
-            var result = listAlunos.FirstOrDefault (a => a.Id == id);
+            var result = _context.Alunos.AsNoTracking().FirstOrDefault (a => a.Id == id);
             if (result == null) return BadRequest ();
 
             return Ok (result);
@@ -46,9 +31,44 @@ namespace SmartSchool.API.Controllers {
 
         [HttpGet ("byName")]
         public IActionResult GetByName (string name) {
-            var result = listAlunos.FirstOrDefault (a => a.Nome.Contains (name));
+            var result = _context.Alunos.AsNoTracking().FirstOrDefault (a => a.Nome.Contains (name));
             if (result == null) return BadRequest ();
 
+            return Ok (result);
+        }
+
+        [HttpPost]
+        public IActionResult Post (Aluno aluno) {
+            _context.Add (aluno);
+            _context.SaveChanges ();
+            return Ok (aluno);
+        }
+
+        [HttpPut]
+        public IActionResult Put (int id, Aluno aluno) {
+            var result = _context.Alunos.AsNoTracking().FirstOrDefault (a => a.Id == id);
+            if (result == null) return BadRequest ();
+            _context.Update (aluno);
+            _context.SaveChanges ();
+            return Ok (aluno);
+        }
+
+        [HttpPatch ("{id}")]
+        public IActionResult Patch (int id, Aluno aluno) {
+            var result = _context.Alunos.AsNoTracking().FirstOrDefault (a => a.Id == id);
+            if (result == null) return BadRequest ();
+            _context.Update (aluno);
+            _context.SaveChanges ();
+            return Ok (aluno);
+        }
+
+        [HttpDelete ("{id}")]
+        public IActionResult Delete (int id) {
+
+            var result = _context.Alunos.AsNoTracking().FirstOrDefault (a => a.Id == id);
+            if (result == null) return BadRequest ();
+            _context.Remove (result);
+            _context.SaveChanges ();
             return Ok (result);
         }
 

@@ -6,12 +6,12 @@ namespace SmartSchool.API.Models
   public class Professor
     {
         public Professor() { }
-        public Professor(int id, int registro, string nome, string sobrenome)
+        public Professor(int id, string nome )
         {
             this.Id = id;
-            this.Registro = registro;
+            //this.Registro = registro;
             this.Nome = nome;
-            this.Sobrenome = sobrenome;
+            //this.Sobrenome = sobrenome;
         }
         public int Id { get; set; }
         public int Registro { get; set; }
