@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -11,27 +12,20 @@ namespace SmartSchool.API.Controllers {
 
     public class AlunoController : ControllerBase {
 
-        private readonly SmartContext _context;
-        public AlunoController (SmartContext context) {
-            _context = context;
+        private readonly IRepository _repo;
+        public AlunoController (IRepository repo) {
+            _repo = repo;
         }
 
         [HttpGet]
         public IActionResult Get () {
-            return Ok (_context.Alunos);
-        }
-
-        [HttpGet ("byId/{id}")]
-        public IActionResult GetById (int id) {
-            var result = _context.Alunos.AsNoTracking().FirstOrDefault (a => a.Id == id);
-            if (result == null) return BadRequest ();
-
+            var result = _repo.GetallAlunos (true);
             return Ok (result);
         }
 
-        [HttpGet ("byName")]
-        public IActionResult GetByName (string name) {
-            var result = _context.Alunos.AsNoTracking().FirstOrDefault (a => a.Nome.Contains (name));
+        [HttpGet ("{id}")]
+        public IActionResult GetById (int id) {
+            var result = _repo.GetAlunoById (id);
             if (result == null) return BadRequest ();
 
             return Ok (result);
@@ -39,38 +33,49 @@ namespace SmartSchool.API.Controllers {
 
         [HttpPost]
         public IActionResult Post (Aluno aluno) {
-            _context.Add (aluno);
-            _context.SaveChanges ();
-            return Ok (aluno);
+            _repo.Add (aluno);
+            if (_repo.SaveChanges ()) {
+                return Ok (aluno);
+            }
+            return BadRequest ();
         }
 
         [HttpPut]
         public IActionResult Put (int id, Aluno aluno) {
-            var result = _context.Alunos.AsNoTracking().FirstOrDefault (a => a.Id == id);
+            var result = _repo.GetAlunoById (id);
             if (result == null) return BadRequest ();
-            _context.Update (aluno);
-            _context.SaveChanges ();
-            return Ok (aluno);
+
+            _repo.Update (aluno);
+            if (_repo.SaveChanges ()) {
+                return Ok (aluno);
+            }
+            return BadRequest ();
         }
 
         [HttpPatch ("{id}")]
         public IActionResult Patch (int id, Aluno aluno) {
-            var result = _context.Alunos.AsNoTracking().FirstOrDefault (a => a.Id == id);
+            var result = _repo.GetAlunoById (id);
             if (result == null) return BadRequest ();
-            _context.Update (aluno);
-            _context.SaveChanges ();
-            return Ok (aluno);
+
+            _repo.Update (aluno);
+            if (_repo.SaveChanges ()) {
+                return Ok (aluno);
+            }
+            return BadRequest ();
         }
 
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
 
-            var result = _context.Alunos.AsNoTracking().FirstOrDefault (a => a.Id == id);
+            var result = _repo.GetAlunoById (id);
             if (result == null) return BadRequest ();
-            _context.Remove (result);
-            _context.SaveChanges ();
-            return Ok (result);
-        }
 
+            _repo.Delete (result);
+            if (_repo.SaveChanges ()) {
+                return Ok ("Deletado");
+            }
+            return BadRequest ();
+
+        }
     }
 }

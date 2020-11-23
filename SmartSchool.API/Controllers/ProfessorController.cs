@@ -8,67 +8,72 @@ namespace SmartSchool.API.Controllers {
     [ApiController]
     [Route ("api/[controller]")]
     public class ProfessorController : ControllerBase {
-
-        private readonly SmartContext _context;
-        public ProfessorController (SmartContext context) {
-            _context = context;
-
+        private readonly IRepository _repo;
+        public ProfessorController (IRepository repo) {
+            _repo = repo;
         }
 
         [HttpGet]
         public IActionResult Get () {
-            return Ok (_context.Professors);
-        }
-
-        [HttpGet ("byId/{id}")]
-        public IActionResult GetById (int id) {
-            var result = _context.Professors.AsNoTracking ().FirstOrDefault (a => a.Id == id);
-            if (result == null) return BadRequest ();
+            var result = _repo.GetallProfessores (true);
 
             return Ok (result);
         }
 
-        [HttpGet ("byName")]
-        public IActionResult GetByName (string name) {
-            var result = _context.Professors.AsNoTracking ().FirstOrDefault (a => a.Nome.Contains (name));
+        [HttpGet ("{id}")]
+        public IActionResult GetById (int id) {
+            var result = _repo.GetProfessorById (id);
             if (result == null) return BadRequest ();
 
             return Ok (result);
         }
 
         [HttpPost]
-        public IActionResult Post (Professor Professor) {
-            _context.Add (Professor);
-            _context.SaveChanges ();
-            return Ok (Professor);
+        public IActionResult Post (Professor professor) {
+            _repo.Add (professor);
+
+            if (_repo.SaveChanges ()) {
+                return Ok (professor);
+            }
+            return BadRequest ();
         }
 
         [HttpPut]
-        public IActionResult Put (int id, Professor Professor) {
-            var result = _context.Professors.AsNoTracking ().FirstOrDefault (a => a.Id == id);
+        public IActionResult Put (int id, Professor professor) {
+            var result = _repo.GetProfessorById (id);
+
             if (result == null) return BadRequest ();
-            _context.Update (Professor);
-            _context.SaveChanges ();
-            return Ok (Professor);
+
+            _repo.Update (professor);
+            if (_repo.SaveChanges ()) {
+                return Ok (professor);
+            }
+            return BadRequest ();
         }
 
         [HttpPatch ("{id}")]
-        public IActionResult Patch (int id, Professor Professor) {
-            var result = _context.Professors.AsNoTracking ().FirstOrDefault (a => a.Id == id);
+        public IActionResult Patch (int id, Professor professor) {
+            var result = _repo.GetProfessorById (id);
             if (result == null) return BadRequest ();
-            _context.Update (Professor);
-            _context.SaveChanges ();
-            return Ok (Professor);
+
+            _repo.Update (professor);
+            if (_repo.SaveChanges ()) {
+                return Ok (professor);
+            }
+            return BadRequest ();
         }
 
         [HttpDelete ("{id}")]
         public IActionResult Delete (int id) {
 
-            var result = _context.Professors.AsNoTracking ().FirstOrDefault (a => a.Id == id);
+            var result = _repo.GetProfessorById (id);
             if (result == null) return BadRequest ();
-            _context.Remove (result);
-            _context.SaveChanges ();
-            return Ok (result);
+
+            _repo.Delete (result);
+            if (_repo.SaveChanges ()) {
+                return Ok ("Deletado");
+            }
+            return BadRequest ();
         }
     }
 }
