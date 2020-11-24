@@ -1,23 +1,28 @@
+using System.Collections.Generic;
 using System.Linq;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.API.Data;
 using SmartSchool.API.Models;
+using SmartSchool.API.V1.Dtos;
 
 namespace SmartSchool.API.Controllers {
     [ApiController]
     [Route ("api/[controller]")]
     public class ProfessorController : ControllerBase {
         private readonly IRepository _repo;
-        public ProfessorController (IRepository repo) {
+        private readonly IMapper _mapper;
+        public ProfessorController (IRepository repo, IMapper mapper) {
             _repo = repo;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public IActionResult Get () {
             var result = _repo.GetallProfessores (true);
 
-            return Ok (result);
+            return Ok (_mapper.Map<IEnumerable<ProfessorDto>> (result));
         }
 
         [HttpGet ("{id}")]
@@ -25,40 +30,45 @@ namespace SmartSchool.API.Controllers {
             var result = _repo.GetProfessorById (id);
             if (result == null) return BadRequest ();
 
-            return Ok (result);
+            var professorDto = _mapper.Map<ProfessorDto> (result);
+
+            return Ok (professorDto);
         }
 
         [HttpPost]
-        public IActionResult Post (Professor professor) {
+        public IActionResult Post (ProfessorRegistrarDto model) {
+
+            var professor = _mapper.Map<Professor> (model);
             _repo.Add (professor);
 
             if (_repo.SaveChanges ()) {
-                return Ok (professor);
+                return Created ($"/api/professor/{model.Id}", _mapper.Map<ProfessorDto> (professor));
             }
             return BadRequest ();
         }
 
         [HttpPut]
-        public IActionResult Put (int id, Professor professor) {
-            var result = _repo.GetProfessorById (id);
+        public IActionResult Put (int id, ProfessorRegistrarDto model) {
+            var professor = _repo.GetProfessorById (id);
+            if (professor == null) return BadRequest ();
 
-            if (result == null) return BadRequest ();
-
+            _mapper.Map (model, professor);
             _repo.Update (professor);
             if (_repo.SaveChanges ()) {
-                return Ok (professor);
+                return Created ($"/api/professor/{model.Id}", _mapper.Map<ProfessorDto> (professor));
             }
             return BadRequest ();
         }
 
         [HttpPatch ("{id}")]
-        public IActionResult Patch (int id, Professor professor) {
-            var result = _repo.GetProfessorById (id);
-            if (result == null) return BadRequest ();
+        public IActionResult Patch (int id, ProfessorRegistrarDto model) {
+            var professor = _repo.GetProfessorById (id);
+            if (professor == null) return BadRequest ();
 
+            _mapper.Map (model, professor);
             _repo.Update (professor);
             if (_repo.SaveChanges ()) {
-                return Ok (professor);
+                return Created ($"/api/professor/{model.Id}", _mapper.Map<ProfessorDto> (professor));
             }
             return BadRequest ();
         }

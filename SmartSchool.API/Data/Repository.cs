@@ -60,7 +60,7 @@ namespace SmartSchool.API.Data {
         }
 
         public Professor[] GetallProfessores (bool incluirAlunos = false) {
-            IQueryable<Professor> query = _context.Professors;
+            IQueryable<Professor> query = _context.Professores;
             if (incluirAlunos) {
                 query = query.Include (a => a.Disciplinas)
                     .ThenInclude (ad => ad.AlunosDisciplinas)
@@ -71,7 +71,7 @@ namespace SmartSchool.API.Data {
         }
 
         public Professor[] GetallProfessorsByDisciplinaId (int disciplinaId, bool incluirAlunos = false) {
-            IQueryable<Professor> query = _context.Professors;
+            IQueryable<Professor> query = _context.Professores;
             if (incluirAlunos) {
                 query = query.Include (a => a.Disciplinas)
                     .ThenInclude (ad => ad.AlunosDisciplinas)
@@ -85,7 +85,7 @@ namespace SmartSchool.API.Data {
         }
 
         public Professor GetProfessorById (int id, bool incluirAlunos = false) {
-            IQueryable<Professor> query = _context.Professors;
+            IQueryable<Professor> query = _context.Professores;
             if (incluirAlunos) {
                 query = query.Include (a => a.Disciplinas)
                     .ThenInclude (ad => ad.AlunosDisciplinas)

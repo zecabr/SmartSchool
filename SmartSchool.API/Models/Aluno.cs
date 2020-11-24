@@ -4,15 +4,20 @@ using System.Collections.Generic;
 namespace SmartSchool.API.Models {
     public class Aluno {
         public Aluno () { }
-        public Aluno (int id,            
+        public Aluno (
+            int id,
+            int matricula,
             string nome,
             string sobrenome,
-            string telefone            ) {
-            this.Id = id;            
+            string telefone,
+            DateTime dtNasc) {
+            this.Id = id;
+            this.Matricula = matricula;
             this.Nome = nome;
             this.Sobrenome = sobrenome;
             this.Telefone = telefone;
-            
+            this.DataNasc = dtNasc;
+
         }
         public int Id { get; set; }
         public int Matricula { get; set; }
