@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.API.Data;
+using SmartSchool.API.Helpers;
 using SmartSchool.API.Models;
 using SmartSchool.API.V1.Dtos;
 
@@ -21,11 +23,20 @@ namespace SmartSchool.API.Controllers {
             _mapper = mapper;
         }
 
+       /// <summary>
+        /// Método responsável para retornar todos os meus alunos
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public IActionResult Get () {
-            var result = _repo.GetallAlunos (true);
+        public async Task<IActionResult> Get([FromQuery] PageParams pageParams)
+        {
+            var alunos = await _repo.GetAllAlunosAsync(pageParams, true);
 
-            return Ok (_mapper.Map<IEnumerable<AlunoDto>> (result));
+            var alunosResult = _mapper.Map<IEnumerable<AlunoDto>>(alunos);
+
+            Response.AddPagination(alunos.CurrentPage, alunos.PageSize, alunos.TotalCount, alunos.TotalPages);
+
+            return Ok(alunosResult);
         }
 
         [HttpGet ("{id}")]
@@ -66,7 +77,7 @@ namespace SmartSchool.API.Controllers {
 
         [HttpPatch ("{id}")]
         public IActionResult Patch (int id, AlunoRegistrarDto model) {
-             var aluno = _repo.GetAlunoById (id);
+            var aluno = _repo.GetAlunoById (id);
             if (aluno == null) return BadRequest ();
 
             _mapper.Map (model, aluno);
